@@ -4,7 +4,7 @@ import logging
 
 
 class SpingerSpider(scrapy.Spider):
-    name = 'spinger'
+    name = 'springer'
     allowed_domains = ["springer.com"]
     # start_urls = [
     #     'https://link.springer.com/journals/a/1'
@@ -29,7 +29,8 @@ class SpingerSpider(scrapy.Spider):
             yield response.follow('https://www.springer.com/journal/{}'.format(journal_id), callback=self.parse_journal, method='GET')
 
         # Next page in list journal page
-        next_page = response.xpath('//main/div[@class="c-atoz-heading interface-bar"]//nav[@class="c-pagination-listed"]/ol/li/a[@rel="next"]/@href').get()
+        next_page = response.xpath(
+            '//main/div[@class="c-atoz-heading interface-bar"]//nav[@class="c-pagination-listed"]/ol/li/a[@rel="next"]/@href').get()
         logging.info('URL next_page: %s', next_page)
         if next_page != None:
             yield response.follow(next_page, self.parse)
@@ -51,7 +52,7 @@ class SpingerSpider(scrapy.Spider):
             except ValueError:
                 pass
 
-        item['name'] = response.xpath(
+        item['title'] = response.xpath(
             '//header//div[@id="journalTitle"]/a/text()').get()
         item['editors'] = response.xpath(
             '//section[@class="app-section"]/dl[@class="c-list-description__item"]//li/text()').get()

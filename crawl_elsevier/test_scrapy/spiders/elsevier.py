@@ -1,7 +1,6 @@
 from test_scrapy.items import TestScrapyItem
 import scrapy
 import logging
-import scrapy.selector as selector
 
 
 class Elsevier(scrapy.Spider):

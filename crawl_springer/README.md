@@ -18,7 +18,7 @@ scrapy startproject training_scrapy
 Adding requirements.txt file to root directory. Then install module for scrapy:
 
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ## Add spider to project
@@ -32,13 +32,13 @@ scrapy genspider springer springer.com
 - Run **srpinger** spider
 
 ```bash
-scrapy crawl spinger
+scrapy crawl springer
 ```
 
 - Render the output to a JSON file
 
 ```bash
-scrapy crawl spinger -o items.json -t json
+scrapy crawl springer -o items.json -t json
 ```
 
 ## Refer
