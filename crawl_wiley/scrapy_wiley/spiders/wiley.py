@@ -6,7 +6,6 @@ from scrapy_wiley.items import ScrapyWileyItem
 class WileySpider(scrapy.Spider):
     name = 'wiley'
     allowed_domains = ['onlinelibrary.wiley.com']
-    # start_urls = ['http://onlinelibrary.wiley.com/']
 
     def start_requests(self):
         urls = [
@@ -33,21 +32,31 @@ class WileySpider(scrapy.Spider):
     def parse_journal(self, response):
         item = ScrapyWileyItem()
 
-        info_label = response.xpath(
-            '//div[@data-widget-def="graphQueryWidget"]/div/span[@class="info_label"]/text()'
-        ).getall()
-        info_value = response.xpath(
-            '//div[@data-widget-def="graphQueryWidget"]/div/span[@class="info_value"]/text()'
-        ).getall()
+        # info_label = response.xpath(
+        #     '//div[@data-widget-def="graphQueryWidget"]/div/span[@class="info_label"]/text()'
+        # ).getall()
+        # info_value = response.xpath(
+        #     '//div[@data-widget-def="graphQueryWidget"]/div/span[@class="info_value"]/text()'
+        # ).getall()
 
-        for i, label in enumerate(info_label):
-            if 'Impact factor:' in label:
-                item['impact_factor'] = info_value[i]
-            elif 'Online ISSN' in label:
-                item['issn'] = info_value[i]
+        # if info_label != None:
+        #     for i, label in enumerate(info_label):
+        #         if 'Impact factor:' in label:
+        #             item['impact_factor'] = info_value[i]
+        #         elif 'Online ISSN' in label:
+        #             item['issn'] = info_value[i].replace("-", "")
 
-        item['title'] = response.xpath(
-            '//meta[@property="og:title"]/@content'
+        issn = response.xpath(
+            '//div[contains(@class,"journal-info-container")]//span[contains(@class,"label") and contains(text(), "ISSN")]/../span[2]/text()'
+        ).get()
+        item['issn'] = issn.replace("-", "").strip()
+
+        # item['title'] = response.xpath(
+        #     '//meta[@property="og:title"]/@content'
+        # ).get()
+
+        item['impact_factor'] = response.xpath(
+            '//div[contains(@class,"journal-info-container")]//span[contains(@class,"label") and contains(text(), "Impact factor")]/../span[2]/text()'
         ).get()
 
         yield item

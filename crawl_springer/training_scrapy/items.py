@@ -8,11 +8,12 @@ from scrapy.item import Item, Field
 
 class JournalMetric(Item):
     # Need id for check while upsert
-    id = Field()
+    # id = Field()
+    issn = Field()
     title = Field()
-    editors = Field()
     impact_factor = Field()
-    downloads = Field()
     stfd = Field()          # Submission to first decision
     fyif = Field()
     sta = Field()          # Submission to acceptance
+    # editors = Field()
+    # downloads = Field()
