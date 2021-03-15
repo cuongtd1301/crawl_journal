@@ -15,6 +15,7 @@ class WileySpider(scrapy.Spider):
             'https://onlinelibrary.wiley.com/action/showPublications?PubType=journal&alphabetRange=0-9')
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
+        # yield scrapy.Request(url="https://onlinelibrary.wiley.com/action/showPublications?PubType=journal&alphabetRange=a", callback=self.parse)
 
     def parse(self, response):
         # Redirect to journal information page

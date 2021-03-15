@@ -2,21 +2,20 @@ import scrapy
 import logging
 from crawl_taylorandfrancis.items import CrawlTaylorandfrancisItem
 import time
+import unidecode
 
 
 class TandfonlineSpider(scrapy.Spider):
     name = 'tandfonline'
     allowed_domains = ['tandfonline.com']
 
-    # start_urls = ['http://tandfonline.com/']
-
     def start_requests(self):
-        # urls = [
-        #     'https://www.tandfonline.com/action/showPublications?pubType=journal&alphabetRange={}'.format(chr(i+97)) for i in range(26)
-        # ]
-        # for url in urls:
-        #     yield scrapy.Request(url=url, callback=self.parse)
-        yield scrapy.Request(url="https://www.tandfonline.com/action/showPublications?pubType=journal&alphabetRange=a", callback=self.parse)
+        urls = [
+            'https://www.tandfonline.com/action/showPublications?pubType=journal&alphabetRange={}'.format(chr(i+97)) for i in range(26)
+        ]
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
+        # yield scrapy.Request(url="https://www.tandfonline.com/action/showPublications?pubType=journal&alphabetRange=a", callback=self.parse)
 
     def parse(self, response):
         # Redirect to journal information page
@@ -25,34 +24,26 @@ class TandfonlineSpider(scrapy.Spider):
         for info_link in info_links:
             journal_code = info_link.split('/')[2]
             time.sleep(1)
-            # print("-------------------------info_link------------------------------")
-            item = CrawlTaylorandfrancisItem()
 
-            item1 = self.parse_journal(response.follow('https://www.tandfonline.com/action/journalInformation?show=journalMetrics&journalCode={}'.format(
-                journal_code)))
-            # item2 = response.follow('https://www.tandfonline.com/action/journalInformation?journalCode={}'.format(
-            #     journal_code), callback=self.parse_journal2)
-
-            # item['title'] = item1['title']
-            print(item1)
-            print("------------------------------------------")
-            # item['issn'] = item2['issn']
-            yield item
+            # item1 = self.parse_journal(response.follow('https://www.tandfonline.com/action/journalInformation?show=journalMetrics&journalCode={}'.format(
+            #     journal_code)))
+           
+            yield response.follow('https://www.tandfonline.com/action/journalInformation?show=journalMetrics&journalCode={}'.format(journal_code), callback=self.parse_journal)
 
         # Next page in list journal page
-        # next_page = response.xpath(
-        #     '//a[@class="nextPage  js__ajaxSearchTrigger"]/@href').get()
-        # if next_page != None:
-        #     time.sleep(1)
-        #     yield response.follow(next_page, self.parse)
+        next_page = response.xpath(
+            '//a[@class="nextPage  js__ajaxSearchTrigger"]/@href').get()
+        if next_page != None:
+            time.sleep(1)
+            yield response.follow(next_page, self.parse)
 
     def parse_journal(self, response):
-        # print(response)
-        # print('--------------------------------------')
         item = CrawlTaylorandfrancisItem()
 
-        item['title'] = response.xpath(
+        title = response.xpath(
             '//span[@class="journal-heading"]/a/text()').get().strip()
+        if title != None:
+            item['title'] = unidecode.unidecode(title)
 
         item['impact_factor'] = response.xpath(
             '//div[@class="citation-metrics"]/ul/li[text()[contains(., "Impact Factor")]]/strong/text()').get()
@@ -70,17 +61,3 @@ class TandfonlineSpider(scrapy.Spider):
             item['stfd'] = stfd + ' days'
 
         return item
-        # yield response.follow('https://www.tandfonline.com/action/journalInformation?show=journalMetrics&journalCode={}'.format(journal_code), callback=self.parse_journal)
-
-    def parse_journal2(self, response):
-        item = CrawlTaylorandfrancisItem()
-
-        issn = response.xpath(
-            '//span[@class="serial-item serialDetailsIssn"]'
-        ).get()
-        if issn != None:
-            item['issn'] = issn.replace("-", "").strip()
-        else:
-            item['issn'] = "--------"
-
-        yield item
